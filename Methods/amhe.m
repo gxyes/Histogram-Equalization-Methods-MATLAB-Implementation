@@ -9,12 +9,12 @@ function optImage = AMHE(imagePath)
     optImage=zeros(rows,columns);
     numPixels  =rows*columns;
     numBins = 256;
-    %a=0.7
 
     grayMean=avePixel(imageHist,1,256);
     grayMeanLower=avePixel(imageHist,1,grayMean);
     grayMeanUpper=avePixel(imageHist,grayMean+1,256);
 
+    % a => (Adaptive Parameter Decision)
     a=zeros(1,256);
     for i=1:grayMean+1
         a(i)=(grayMean-grayMeanLower)/(grayMeanUpper-grayMeanLower);
@@ -29,7 +29,7 @@ function optImage = AMHE(imagePath)
     freMin=min(PDF);
     freMean=0.5*(freMin+freMax);
 
-    % New PDF
+    % New PDF (Modification of the PDF)
     for i=1:256
         if PDF(i)>freMean
             freOpt(i)=freMean+a(i)*((PDF(i)-freMean)^2)/(freMax-freMean);
