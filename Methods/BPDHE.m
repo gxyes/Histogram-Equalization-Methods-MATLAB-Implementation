@@ -32,7 +32,7 @@ function optImage = BPDHE(imagePath)
     % Length of this filter is eight
     cmpFilter = [1 1 1 -1 -1 -1 -1 -1];
     
-    localMax = zeros([1,3]);    
+    localMax = zeros([1,2]);    
     
     % Start bound
     localMax(1) = 0;    
@@ -50,7 +50,6 @@ function optImage = BPDHE(imagePath)
     end   
     % End bound
     localMax(indexMax) = bins;
-    
     % How many local maximum bins we found
     factor = zeros([length(localMax)-1,1]);
     

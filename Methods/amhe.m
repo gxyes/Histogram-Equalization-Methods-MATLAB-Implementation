@@ -1,69 +1,70 @@
-clear;
-clc;
+function optImage = AMHE(imagePath)
+    % Read the input image
+    Image=imread(imagePath);
+    
+    % Image info
+    imageHist = imhist(Image);
+    [rows, columns] = size(Image);
+    
+    optImage=zeros(rows,columns);
+    numPixels  =rows*columns;
+    numBins = 256;
+    %a=0.7
 
-PicOri=imread('home.jpg');
-if isgray(PicOri)==0		%判断一幅图像是否为灰度图像
-	PicGray=rgb2gray(PicOri);
-else
-	PicGray=PicOri;
-end
-figure(1),imshow(PicGray),title('原灰度图像');
+    grayMean=avePixel(imageHist,1,256);
+    grayMeanLower=avePixel(imageHist,1,grayMean);
+    grayMeanUpper=avePixel(imageHist,grayMean+1,256);
 
-h=imhist(PicGray);
-figure(2),bar(0:255,imhist(PicGray),'k'),title('原图像直方图');
+    a=zeros(1,256);
+    for i=1:grayMean+1
+        a(i)=(grayMean-grayMeanLower)/(grayMeanUpper-grayMeanLower);
+    end
+    for i=grayMean+2:256
+        a(i)=(grayMeanUpper-grayMean)/(grayMeanUpper-grayMeanLower);
+    end
 
-[m,n]=size(PicGray);
-PicHEt=zeros(m,n);
-N=m*n;
-L=256;
-%a=0.7
+    % PDF and frequency calculation
+    PDF=imageHist/numPixels;
+    freMax=max(PDF);
+    freMin=min(PDF);
+    freMean=0.5*(freMin+freMax);
 
-Xm=averpixcal(h,1,256);
-Xml=averpixcal(h,1,Xm);
-Xmu=averpixcal(h,Xm+1,256);
+    % New PDF
+    for i=1:256
+        if PDF(i)>freMean
+            freOpt(i)=freMean+a(i)*((PDF(i)-freMean)^2)/(freMax-freMean);
+        else
+            freOpt(i)=freMean-a(i)*((freMean-PDF(i))^2)/(freMean-freMin);
+        end
+    end
 
-a=zeros(1,256);
-for i=1:Xm+1
-	a(i)=(Xm-Xml)/(Xmu-Xml);
-end
-for i=Xm+2:256
-	a(i)=(Xmu-Xm)/(Xmu-Xml);
-end
-
-hpdf=h/N;
-
-pmax=max(hpdf);
-pmin=min(hpdf);
-pmid=0.5*(pmin+pmax);
-
-for i=1:256
-	if hpdf(i)>pmid
-		pamhe(i)=pmid+a(i)*((hpdf(i)-pmid)^2)/(pmax-pmid);
-		%pamhe(i)=pmid+a*((hpdf(i)-pmid)^2)/(pmax-pmid);
-	else
-		pamhe(i)=pmid-a(i)*((pmid-hpdf(i))^2)/(pmid-pmin);
-		%pamhe(i)=pmid-a*((pmid-hpdf(i))^2)/(pmid-pmin);
-	end
-end
-
-camhet(1)=pamhe(1);
-for i=2:256
-	camhet(i)=pamhe(i)+camhet(i-1);
-end
-
-camhe=zeros(1,256);
-camhe=camhet/camhet(L);
-
-FuncHE=(L-1)*camhe;
-
-for i=1:m
-	for j=1:n
-		PicHEt(i,j)=floor(FuncHE(PicGray(i,j)+1))-1;
-	end
+    % CDF calculation
+    CDFOpt(1)=freOpt(1);
+    for i=2:256
+        CDFOpt(i)=freOpt(i)+CDFOpt(i-1);
+    end
+    
+    CDF=zeros(1,256);
+    CDF=CDFOpt/CDFOpt(numBins);
+    Mapping=(numBins-1)*CDF;
+    
+    % Output image calculation
+    for i=1:rows
+        for j=1:columns
+            optImage(i,j)=floor(Mapping(Image(i,j)+1))-1;
+        end
+    end
+    optImage=uint8(optImage);
 end
 
-PicHE=uint8(PicHEt);
-ht=imhist(PicHE);
-Xmt=averpixcal(ht,1,256);
-figure(3),imshow(PicHE),title('处理后的图像');
-figure(4),bar(0:255,imhist(PicHE),'k'),title('处理后图像直方图');
+function grayXM=avePixel(imageHist,startPos,endPos)
+    sumPixel=0;
+    Sum=0;
+    for i=startPos:endPos
+        % Value
+        sumPixel=(i-1)*imageHist(i)+sumPixel;
+        % Num
+        Sum=imageHist(i)+Sum;
+    end
+    grayXM=ceil(sumPixel/Sum);
+end

@@ -19,6 +19,7 @@ function [optImage, AMBE] = MMBEBHE(imagePath)
     
     % Sort the AMBE list and get the best threshold
     [~, rankPosition] = sort(AMBEList);
+    
     bestThreshold = possibleThreshold(1, rankPosition(1, 1));
     
     % Generate the output image and AMBE value
@@ -35,7 +36,7 @@ function [optImage, AMBE] = genAMBEAndImage(Image, threshold)
     grayMin = min(min(Image));
     grayMax = max(max(Image));
     
-    grayLower = zeros(1, grayThreshold + 1);
+    grayLower = zeros(1, grayThreshold+1);
     grayUpper = zeros(1, 256);
     
     numLower = 0;
@@ -53,7 +54,7 @@ function [optImage, AMBE] = genAMBEAndImage(Image, threshold)
         end
     end
     
-    lowerSideGrayUpper = grayThreshold + 1;
+    lowerSideGrayUpper = min(256, grayThreshold + 1);
     while grayUpper(lowerSideGrayUpper)+1 == 0
         lowerSideGrayUpper = lowerSideGrayUpper + 1;
     end
