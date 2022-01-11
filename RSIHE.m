@@ -1,4 +1,4 @@
-function optImage = RMSHE(imagePath)
+function optImage = RSIHE(imagePath)
     % Read your input image from some path
     Image = imread(imagePath);
     imageHist = imhist(Image);
@@ -18,12 +18,9 @@ function optImage = RMSHE(imagePath)
     grayXM(1) = grayMax + 1;
     grayXM(2) = grayMin + 1;
     
-    for i=1:r
-        % length
-        for j=1:2^(i-1)
-            grayXM(2^(i-1)+j+1) = avePixel(imageHist, grayXM(2^(i-1)-j+2), grayXM(2^(i-1)-j+1));
-        end
-        grayXM = sort(grayXM, 'descend');
+    for i=3:length
+        divRange = ((i-2)*numPixels)/(2^r);
+        grayXM(i) = CDFDivCal(imageHist, divRange);
     end
     
     % Sort the division level list 
@@ -37,16 +34,14 @@ function optImage = RMSHE(imagePath)
     optImage = uint8(optImage);
 end
 
-function grayXM=avePixel(imageHist,startPos,endPos)
-    sumPixel=0;
-    Sum=0;
-    for i=startPos:endPos
-        % Value
-        sumPixel=(i-1)*imageHist(i)+sumPixel;
-        % Num
-        Sum=imageHist(i)+Sum;
+function grayXM=CDFDivCal(imageHist,divRange)
+    % find every division gray level value
+    cum(1)=imageHist(1);    
+    for i=2:256
+        cum(i)=imageHist(i)+cum(i-1);
     end
-    grayXM=ceil(sumPixel/Sum);
+    index=find(cum>=divRange);
+    grayXM=index(1);
 end
 
 function optImage=HE(Image,optImage,row,col,imageHist,min,max)

@@ -23,24 +23,23 @@ function optImage = ESIHE(imagePath)
         end
     end
     
-    % Exposure
+    % Exposure threshold calculation
     exposureValue = sum(imageHist.*[0:1:bins-1]) / sum(imageHist) / (bins);
-    disp(sum(imageHist.*[0:1:bins-1]) / sum(imageHist) );
-    disp(sum(imageHist));
-    disp(exposureValue);
     aNorm=(1-exposureValue);
-    Xm=round(bins*aNorm);
+    grayXM=round(bins*aNorm);
     
     % ESIHE procedure    
     optImage=zeros(size(Image)); 
     
     % Lower and upper cum, num, and frenquency
-    cumLower=zeros(1,Xm+1);
-    cumUpper=zeros(1,(256-(Xm+1)));
-    numLower=sum(clippedHist(1:Xm+1));
-    numUpper=sum(clippedHist(Xm+2:bins));
-    freLower=clippedHist(1:Xm+1)/numLower;
-    freUpper=clippedHist(Xm+2:bins)/numUpper;
+    cumLower=zeros(1,grayXM+1);
+    cumUpper=zeros(1,(256-(grayXM+1)));
+    
+    numLower=sum(clippedHist(1:grayXM+1));
+    numUpper=sum(clippedHist(grayXM+2:bins));
+    
+    freLower=clippedHist(1:grayXM+1)/numLower;
+    freUpper=clippedHist(grayXM+2:bins)/numUpper;
     
     % Obtain cum function
     cumLower(1)=freLower(1);
@@ -55,11 +54,11 @@ function optImage = ESIHE(imagePath)
     % Obtain the output image
     for i=1:rows                       
         for j=1:columns
-            if Image(i,j)<(Xm+1)
-                value = Xm*cumLower(Image(i,j)+1);
+            if Image(i,j)<(grayXM+1)
+                value = grayXM*cumLower(Image(i,j)+1);
                 optImage(i,j)=round(value);
             else
-                value = (Xm+1)+(bins-1-Xm)*cumUpper((Image(i,j)-(Xm+1))+1);
+                value = (grayXM+1)+(bins-1-grayXM)*cumUpper((Image(i,j)-(grayXM+1))+1);
                 optImage(i,j)=round(value);
             end
         end

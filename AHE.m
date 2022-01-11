@@ -3,7 +3,7 @@ function optImage = AHE(numTiles, imagePath)
     Image = imread(imagePath);
     
     % Print the size of the input image
-    sprintf('Size of your input image: %d, %d',size(Image))
+%     sprintf('Size of your input image: %d, %d',size(Image))
     
     % Preprocessing: divide the image into tiles
     [numTiles,Image,dimTile] = PreProcessInput(numTiles,Image);
@@ -15,8 +15,8 @@ function optImage = AHE(numTiles, imagePath)
     optImage = makeAHEImage(Image, tileMappings, numTiles, dimTile);
     
     % Print two sizes
-    sprintf('Size of the input image after padding: %d, %d',size(Image))
-    sprintf('Size of each tile: %d, %d',dimTile)
+%     sprintf('Size of the input image after padding: %d, %d',size(Image))
+%     sprintf('Size of each tile: %d, %d',dimTile)
 end
 
 % =========================================================================
@@ -111,7 +111,7 @@ function tileMappings = makeTileMappings(numTiles, Image, dimTile)
         end
         imgCol = imgCol + dimTile(2);
     end
-    sprintf('Tile Mappings size is: %d, %d',size(tileMappings))           
+%     sprintf('Tile Mappings size is: %d, %d',size(tileMappings))           
 end
 
 % =========================================================================
@@ -182,5 +182,31 @@ function optImage = makeAHEImage(Image, tileMappings, numTiles, dimTile)
             imgTileCol = imgTileCol + imgTileNumCols;
         end
         imgTileRow = imgTileRow + imgTileNumRows;
+    end
+end
+% =========================================================================
+% Pixel Mapping
+% =========================================================================
+function optPixelValue = PixelMapping(inHist, dimImage)
+    frequency = inHist/(dimImage(1)*dimImage(2));
+    accumulation = zeros(1, 256);
+    accumulation(1, 1) = frequency(1, 1);
+    for i = 2:256
+        accumulation(1,i) = accumulation(1,i-1) + frequency(1,i);
+    end
+    optPixelValue = floor(accumulation * 255);
+end
+% =========================================================================
+% Get image histogram
+% =========================================================================
+function optGrayHist = GetImageHist(inGrayImage)
+    % Input => Gray image
+    % Output => The histogram of the gray image
+    [rows, columns] = size(inGrayImage);
+    optGrayHist = zeros(1, 256);
+    for i = 1:rows
+        for j = 1:columns
+            optGrayHist(inGrayImage(i,j)+1) = optGrayHist(inGrayImage(i,j)+1) + 1;
+        end
     end
 end
