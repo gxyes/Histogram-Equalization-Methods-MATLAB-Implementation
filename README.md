@@ -113,3 +113,7 @@ AMBEValue = AMBE(imageXPath, imageYPath);
 SSIMValue = SSIM(imageXPath, imageYPath);
 ```
 
+### Dataset Intro
+
+> **Set12** is a collection of **12** grayscale images of different scenes that are widely used for evaluation of image processing methods. The size of each image from image01 to image05 is **256×256**, and the size of each image from image06 to image12 is **512×512**.
+
