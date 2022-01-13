@@ -150,6 +150,3 @@ SSIMValue = SSIM(imageXPath, imageYPath);
 > - https://ieeexplore.ieee.org/abstract/document/4429280
 > - https://ieeexplore.ieee.org/abstract/document/5722541
 > - https://www.sciencedirect.com/science/article/pii/S0167865513003280?casa_token=97Vgv4Q2HQAAAAAA:WvcPyKWYeOleFK1fBISNUJ4R-NvAhvZpHHCGjtTHt0kBoJqxMazUdnv0PnoSeag-wXOrukMBXL4
-
-
-
